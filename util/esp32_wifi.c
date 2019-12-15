@@ -833,7 +833,7 @@ static void handle_config_timer(TimerHandle_t timer)
         }
     }
 
-    ESP_LOGD(TAG, "[%s] Leaving. State: %s delay: %d",
+    ESP_LOGD(TAG, "[%s] Leaving. State: %s delay: %lu",
             __FUNCTION__, state_names[cfg_state.state], delay);
 
     xSemaphoreGive(cfg_state.lock);

@@ -611,9 +611,11 @@ static int check_partition_valid_app(const esp_partition_t *partition)
         .offset = partition->address,
         .size = partition->size,
     };
+#if 0
 	if (esp_image_verify(ESP_IMAGE_VERIFY_SILENT, &part_pos, &data) != ESP_OK) {
         return 0;  // partition does not hold a valid app
     }
+#endif
     return 1; // App in partition is valid
 }
 

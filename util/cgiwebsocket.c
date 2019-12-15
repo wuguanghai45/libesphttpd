@@ -162,7 +162,7 @@ void ICACHE_FLASH_ATTR cgiWebsocketClose(HttpdInstance *pInstance, Websock *ws, 
 
 
 static void ICACHE_FLASH_ATTR websockFree(Websock *ws) {
-	ESP_LOGD(TAG, "");
+	//ESP_LOGD(TAG, "");
 	if (ws->closeCb) ws->closeCb(ws);
 	//Clean up linked list
 	if (llStart==ws) {

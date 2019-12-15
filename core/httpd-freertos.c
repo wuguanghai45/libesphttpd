@@ -14,6 +14,13 @@ Thanks to my collague at Espressif for writing the foundations of this code.
 
 #if defined(linux) || defined(FREERTOS)
 
+#ifdef FREERTOS
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/queue.h"
+#include "freertos/semphr.h"
+#endif
+
 #ifdef linux
 #include <libesphttpd/linux.h>
 #include <netinet/tcp.h>
@@ -32,12 +39,7 @@ Thanks to my collague at Espressif for writing the foundations of this code.
 
 #include "esp_log.h"
 
-#ifdef FREERTOS
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "freertos/queue.h"
-#include "freertos/semphr.h"
-#endif
+
 
 #define fr_of_instance(instance) esp_container_of(instance, HttpdFreertosInstance, httpdInstance)
 #define frconn_of_conn(conn) esp_container_of(conn, RtosConnType, connData)
