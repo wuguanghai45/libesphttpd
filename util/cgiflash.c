@@ -18,6 +18,7 @@ Some flash handling cgi routines. Used for updating the ESPFS/OTA image.
 #include "esp_log.h"
 #include "esp_flash_partitions.h"
 #include "esp_image_format.h"
+#include "esp_system.h"
 
 static const char *TAG = "ota";
 #endif
@@ -32,9 +33,9 @@ static int ICACHE_FLASH_ATTR checkBinHeader(void *buf) {
 #ifdef ESP32
 	printf("checkBinHeader: %x %x %x\n", cd[0], ((uint16_t *)buf)[3], ((uint32_t *)buf)[0x6]);
 	if (cd[0] != 0xE9) return 0;
-	if (((uint16_t *)buf)[3] != 0x4008) return 0;
-	uint32_t a=((uint32_t *)buf)[0x6];
-	if (a!=0 && (a<=0x3F000000 || a>0x40400000)) return 0;
+	//if (((uint16_t *)buf)[3] != 0x4008) return 0;
+	//uint32_t a=((uint32_t *)buf)[0x6];
+	//if (a!=0 && (a<=0x3F000000 || a>0x40400000)) return 0;
 #else
 	if (cd[0] != 0xEA) return 0;
 	if (cd[1] != 4 || cd[2] > 3 || cd[3] > 0x40) return 0;
@@ -82,7 +83,7 @@ CgiStatus ICACHE_FLASH_ATTR cgiGetFirmwareNext(HttpdConnData *connData) {
 //write SPI data in pages. The page size is a software thing, not
 //a hardware one.
 #ifdef ESP32
-#define PAGELEN 4096
+#define PAGELEN 64
 #else
 #define PAGELEN 64
 #endif
@@ -263,6 +264,7 @@ CgiStatus ICACHE_FLASH_ATTR cgiUploadFirmware(HttpdConnData *connData) {
 				ESP_LOGE(TAG, "Did not recognize flash image type");
 			}
 		} else if (state->state==FLST_WRITE) {
+			ESP_LOGD(TAG, "esp_ota_write len:%d", dataLen);
 			err = esp_ota_write(state->update_handle, data, dataLen);
 			if (err != ESP_OK) {
 				ESP_LOGE(TAG, "Error: esp_ota_write failed! err=0x%x", err);
@@ -289,9 +291,9 @@ CgiStatus ICACHE_FLASH_ATTR cgiUploadFirmware(HttpdConnData *connData) {
 
 #if 0
 	//TODO: maybe use ESP_LOGD() here in the future
-	printf("post->len %d, post->received %d\n", connData->post->len,
-		connData->post->received);
-	printf("state->len %d, state->address: %d\n", state->len, state->address);
+	ESP_LOGD(TAG, "post->len %d, post->received %d\n", connData->post.len,
+			connData->post.received);
+	ESP_LOGD(TAG, "state->len %d, state->address: %d\n", state->len, state->address);
 #endif
 
 	if  (connData->post.len == connData->post.received) {
@@ -497,12 +499,7 @@ CgiStatus ICACHE_FLASH_ATTR cgiUploadFirmware(HttpdConnData *connData) {
 static HttpdPlatTimerHandle resetTimer;
 
 static void ICACHE_FLASH_ATTR resetTimerCb(void *arg) {
-#ifndef ESP32
-	system_upgrade_flag_set(UPGRADE_FLAG_FINISH);
-	system_upgrade_reboot();
-#else
-	esp32flashRebootIntoOta();
-#endif
+	esp_restart();
 }
 
 // Handle request to reboot into the new firmware
