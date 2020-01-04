@@ -20,6 +20,16 @@ Websocket support for esphttpd. Inspired by https://github.com/dangrie158/ESP-82
 #include "esp_log.h"
 const static char* TAG = "cgiwebsocket";
 
+
+#undef ESP_LOGD
+#define ESP_LOGD(...)
+
+#undef ESP_LOGE
+#define ESP_LOGE(...)
+
+#undef ESP_LOGI
+#define ESP_LOGI(...)
+
 #define WS_KEY_IDENTIFIER "Sec-WebSocket-Key: "
 #define WS_GUID "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
 
